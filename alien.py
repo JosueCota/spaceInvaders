@@ -60,10 +60,14 @@ class Aliens:
         
     def update(self):
         for alien in self.aliens: alien.update()
-        if self.check_bottom(): self.game.game_over()
+        if self.check_bottom():
+            self.stats.ship_hit()
+            return
         if self.check_edges(): self.reverse_fleet()
         if pg.sprite.spritecollideany(self.ship, self.aliens):
+            self.game.sound.death_sound()
             self.stats.ship_hit()
+
         self.draw()
             
     def draw(self): 

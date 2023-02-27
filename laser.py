@@ -10,14 +10,23 @@ class Lasers():
         
     def add(self):
         self.lasers.add(Laser(game=self.game))
-        print(f'Laser #{len(self.lasers)}')
         
-    def update_bullets(self, aliens, lasers):
-        collisions = pg.sprite.groupcollide(self.lasers, aliens.aliens, True, True)
+    def update_bullets(self):
+        collisions = pg.sprite.groupcollide(self.lasers, self.game.aliens.aliens, True, True)
 
-        if len(aliens.aliens) == 0:
+        if collisions:
+            for aliens in collisions.values():
+                self.game.stats.score += self.game.settings.alien_points *len(aliens)
+                self.game.scoreboard.prep_score()
+            self.game.scoreboard.check_high_score()
+
+        if len(self.game.aliens.aliens) == 0:
             self.lasers.empty()
-            aliens.create_fleet()
+            self.game.stats.level +=1
+            self.game.scoreboard.prep_level()
+            self.game.aliens.create_fleet()
+            self.game.settings.increase_speed()
+            
 
     def update(self): 
         for laser in self.lasers:
