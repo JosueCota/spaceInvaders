@@ -25,9 +25,9 @@ class Game:
         self.sound = Sound()
         self.sound.play_background()
         self.button.prep_msg()
-        self.scoreboard = Scoreboard(game=self)
-
+       
         self.ship = Ship(game=self)
+        self.scoreboard = Scoreboard(game=self)
         self.aliens = Aliens(game=self)
         self.lasers = Lasers(game=self)
         self.ship.set_lasers(lasers=self.lasers)   

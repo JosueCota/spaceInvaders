@@ -15,10 +15,11 @@ class GameStats():
 
     def ship_hit(self):
         self.ships_left -=1
+        self.game.scoreboard.prep_ship()
         if self.ships_left == 0:
             self.game.game_over()
             pg.mouse.set_visible(True)
-
+        
         self.game.aliens.aliens.empty()
         self.game.lasers.lasers.empty()
         self.game.aliens.create_fleet()

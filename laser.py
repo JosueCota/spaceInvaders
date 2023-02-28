@@ -18,6 +18,7 @@ class Lasers():
             for aliens in collisions.values():
                 self.game.stats.score += self.game.settings.alien_points *len(aliens)
                 self.game.scoreboard.prep_score()
+                self.game.sound.death_sound()
             self.game.scoreboard.check_high_score()
 
         if len(self.game.aliens.aliens) == 0:

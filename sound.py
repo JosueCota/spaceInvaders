@@ -10,7 +10,7 @@ class Sound:
         self.death = pg.mixer.Sound('sounds/death.wav')
         self.lasers = pg.mixer.Sound('sounds/laser.wav')
         pg.mixer.Sound.set_volume(self.lasers, 0.1)
-        pg.mixer.Sound.set_volume(self.death, 0.4)
+        pg.mixer.Sound.set_volume(self.death, 0.3)
         pg.mixer.Sound.play(self.background)
         pg.mixer.Sound.set_volume(self.background, 0.1)
         

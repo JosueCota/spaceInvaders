@@ -1,6 +1,7 @@
 import pygame.font
 import os.path
 from pygame.sprite import Group
+from ship import Ship_sb
 
 class Scoreboard():
     def __init__(self, game) -> None:
@@ -9,6 +10,7 @@ class Scoreboard():
         self.screen_rect = self.screen.get_rect()
         self.settings = game.settings
         self.stats = game.stats
+        
 
         if not os.path.isfile("./high_score.txt"):
             with open("high_score.txt", "w") as file:
@@ -28,6 +30,7 @@ class Scoreboard():
         self.prep_score()
         self.prep_high_score()
         self.prep_level()
+        self.prep_ship()
 
     def prep_high_score(self):
         self.high_score = round(self.high_score, -1)
@@ -56,11 +59,18 @@ class Scoreboard():
         self.level_rect.right = self.score_rect.right
         self.level_rect.top = self.score_rect.bottom + 10
 
+    def prep_ship(self):
+        self.ships = Group()
+        for ship in range(self.game.stats.ships_left):
+            self.temp_ship = Ship_sb(self.game)
+            self.ships.add(Ship_sb.set_ships(self.temp_ship, ship))
+
     def show_score(self):
         self.screen.blit(self.score_image, self.score_rect)
         self.screen.blit(self.high_score_image, self.high_score_rect)
         self.screen.blit(self.level_image, self.level_rect)
-
+        for ship in self.ships:
+            Ship_sb.draw(ship)
     def check_high_score(self):
         if self.stats.score > self.high_score:
             self.high_score = self.stats.score

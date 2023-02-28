@@ -43,30 +43,28 @@ class Ship(Character):
     def draw(self):
         self.screen.blit(self.image, self.rect)
 
-# class Ships_sb():
-#     def __init__(self, game) -> None:
-#         ships= Group()
-#         self.stats = game.stats
+class Ship_sb(Sprite):
+    def __init__(self, game):
+        super().__init__()
 
-#     def draw_ship(self):
-#         for num in 
+        self.game = game
+        self.screen = game.screen 
+        self.settings = game.settings
+        
+        self.image = pg.image.load('images/ship.bmp')
+        self.rect = self.image.get_rect()
+        self.screen_rect = self.screen.get_rect()
 
-# class Ship_sb(Sprite):
-#     def __init__(self, game):
-#         super().__init__()
+        self.rect.y = self.rect.height
+        self.x = float(self.rect.x)
+        self.y = float(self.rect.y)
+        
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
 
-#         self.game = game
-#         self.screen = game.screen 
-#         self.settings = game.settings
-         
-#         self.image = pg.image.load('images/ship.bmp')
-#         self.rect = self.image.get_rect()
-#         self.screen_rect = self.screen.get_rect()
-
-
-#         def make_ship(self, ship_num):
-#             self.rect.x = 10 + ship_num * self.ship.rect.width
-#             self.rect.y = self.rect.height
-#             self.x = float(self.rect.x)
-#             self.y = float(self.rect.y)
+    def set_ships(self, ship_num):
+        self.rect.x = 10 + ship_num * self.rect.width
+        return(self)
+        
+        
 
