@@ -1,36 +1,43 @@
+import pygame as pg 
 import pygame.font
 import os.path
-from pygame.sprite import Group
-from ship import Ship_sb
+from ship import Ship
+from pygame.sprite import  Group
 
-class Scoreboard():
-    def __init__(self, game) -> None:
+class Scoreboard:
+    def __init__(self, game): 
         self.game = game
+        self.score = 0
+        self.level = 0
+        self.high_score = 0
+        
+        self.settings = game.settings
         self.screen = game.screen
         self.screen_rect = self.screen.get_rect()
-        self.settings = game.settings
-        self.stats = game.stats
-        
 
         if not os.path.isfile("./high_score.txt"):
             with open("high_score.txt", "w") as file:
-                print("Created File")
+                for i in range(5):
+                    file.write("0\n")
 
         with open("high_score.txt", "r") as file:
             if not file.read(1):
                 self.high_score = 0
             else:
                 file.seek(0)
-                self.high_score = int(file.read())
+                self.high_score = int(file.readline())
 
-        # Font settings for scoring information.
-        self.text_color = (30, 30, 30)
-        self.font = pygame.font.SysFont(None, 48)
+        self.text_color = (255, 255, 255)
+        self.font = pg.font.SysFont(None, 48)
 
+        self.score_image = None 
+        self.score_rect = None
         self.prep_score()
         self.prep_high_score()
-        self.prep_level()
         self.prep_ship()
+    def increment_score(self, n): 
+        self.score += n
+        self.prep_score()
 
     def prep_high_score(self):
         self.high_score = round(self.high_score, -1)
@@ -41,40 +48,55 @@ class Scoreboard():
         self.high_score_rect.centerx = self.screen_rect.centerx
         self.high_score_rect.top = self.score_rect.top
 
-    def prep_score(self):
-        """Turn the score into a rendered image."""
-        self.rounded_score = round(self.stats.score, -1)
-        score_str = "{:,}".format(self.rounded_score)
+    def prep_score(self): 
+        score_str = str(self.score)
         self.score_image = self.font.render(score_str, True, self.text_color, self.settings.bg_color)
 
-         # Display the score at the top right of the screen.
+        # Display the score at the top right of the screen.
         self.score_rect = self.score_image.get_rect()
         self.score_rect.right = self.screen_rect.right - 20
         self.score_rect.top = 20
 
-    def prep_level(self):
-        self.level_image = self.font.render(str(self.stats.level), True, self.text_color, self.settings.bg_color)
-        
-        self.level_rect = self.level_image.get_rect()
-        self.level_rect.right = self.score_rect.right
-        self.level_rect.top = self.score_rect.bottom + 10
-
     def prep_ship(self):
         self.ships = Group()
-        for ship in range(self.game.stats.ships_left):
-            self.temp_ship = Ship_sb(self.game)
-            self.ships.add(Ship_sb.set_ships(self.temp_ship, ship))
+        for ship in range(self.game.ship.ships_left):
+            temp_ship = Ship(self.game)
+            temp_ship = Ship.set_ship_lives(temp_ship, ship)
+            self.ships.add(temp_ship)
 
-    def show_score(self):
+    def reset(self): 
+        
+        self.update()
+
+    def update(self): 
+        # TODO: other stuff
+        self.draw()
+
+    def draw(self): 
         self.screen.blit(self.score_image, self.score_rect)
         self.screen.blit(self.high_score_image, self.high_score_rect)
-        self.screen.blit(self.level_image, self.level_rect)
         for ship in self.ships:
-            Ship_sb.draw(ship)
+            Ship.draw(ship)
+
     def check_high_score(self):
-        if self.stats.score > self.high_score:
-            self.high_score = self.stats.score
-            
-            with open("high_score.txt", "w") as file:
-                file.write(str(self.high_score))
+        if self.score > self.high_score:
+            self.high_score = self.score
             self.prep_high_score()
+        
+
+    def save_highscores(self):
+        int_list = []
+        with open("high_score.txt", "r") as file: 
+            
+            lines = [line.rstrip() for line in file]
+            int_list = [int(i) for i in lines]
+            for n in range(5):
+                if int_list[n] <= self.score:
+                    int_list.insert(n, self.score)
+                    break
+                
+        with open("high_score.txt", "w") as file:
+            for highscores in range(5):
+                file.writelines(str(int_list[highscores]) + "\n")
+                    
+           

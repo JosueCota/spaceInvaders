@@ -1,66 +1,63 @@
 import pygame as pg
 from pygame.sprite import Sprite, Group
-from util import Util
+from timer import Timer
+from random import randint
+from enum import Enum
 
 
-class Lasers():
-    def __init__(self, game): 
-        self.game = game 
-        self.lasers = Group() 
-        
-    def add(self):
-        self.lasers.add(Laser(game=self.game))
-        
-    def update_bullets(self):
-        collisions = pg.sprite.groupcollide(self.lasers, self.game.aliens.aliens, True, True)
+class LaserType(Enum):
+    ALIEN = 1
+    SHIP = 2
 
-        if collisions:
-            for aliens in collisions.values():
-                self.game.stats.score += self.game.settings.alien_points *len(aliens)
-                self.game.scoreboard.prep_score()
-                self.game.sound.death_sound()
-            self.game.scoreboard.check_high_score()
 
-        if len(self.game.aliens.aliens) == 0:
-            self.lasers.empty()
-            self.game.stats.level +=1
-            self.game.scoreboard.prep_level()
-            self.game.aliens.create_fleet()
-            self.game.settings.increase_speed()
-            
+class Lasers:  # TODO: add laser-laser collisions AND laser-barrier collisions
+    def __init__(self, settings, type):
+        self.lasers = Group()
+        self.settings = settings
+        self.type=type
 
-    def update(self): 
-        for laser in self.lasers:
-            laser.update()
+    def reset(self): self.lasers.empty()        
+
+    def shoot(self, game, x, y):
+        self.lasers.add(Laser(settings=game.settings, screen=game.screen, 
+                              x=x, y=y, sound=game.sound, type=self.type))
+
+    def update(self):
+        self.lasers.update()
         for laser in self.lasers.copy():
-            if laser.rect.bottom <= 0:
-                self.lasers.remove(laser)
+            if laser.rect.bottom <= 0: self.lasers.remove(laser)
+
+    def draw(self):
+        for laser in self.lasers.sprites(): laser.draw()
+
+class Laser(Sprite): 
+    """A class to manage lasers fired from the ship"""
+    alien_laser_images = [pg.transform.rotozoom(pg.image.load(f'images/alien_lasers/alien_lasers_{n}.png'), 0, .1) for n in range(2)]
+    ship_laser_images = [pg.transform.rotozoom(pg.image.load(f'images/laser/laser_{n}.png'), 0, .2) for n in range(3)]
+    laser_images = {LaserType.ALIEN: alien_laser_images, LaserType.SHIP: ship_laser_images}
+
+    def __init__(self, settings, screen, x, y, sound, type):
+        super().__init__()
+        self.screen = screen
+        self.rect = pg.Rect(0, 0, settings.laser_width, settings.laser_height)
+        self.rect.centerx = x
+        self.rect.bottom = y
+        self.y = float(self.rect.y)
+        self.type = type
+        self.color = (randint(0, 200), randint(0, 200), randint(0, 200))
+        self.speed = settings.laser_speed
+        imagelist = Laser.laser_images[type]
+        self.timer = Timer(image_list=imagelist, delay=200)
+        sound.shoot_laser(type=self.type)
+
+    def update(self):
+        self.y += self.speed if self.type == LaserType.ALIEN else -self.speed
+        self.rect.y = self.y
         self.draw()
 
-    def draw(self): 
-        for laser in self.lasers:
-            laser.draw()
-        
-
-class Laser(Sprite):
-    def __init__(self, game):
-        super().__init__()
-        self.screen = game.screen
-        self.ship = game.ship
-        self.settings = game.settings
-        self.rect = pg.Rect(0, 0, self.settings.laser_width,
-            self.settings.laser_height)
-        self.rect.centerx = self.ship.rect.centerx
-        self.rect.top = self.ship.rect.top
-
-        self.y = float(self.rect.y)
-        # self.color = self.settings.laser_color
-        self.color = Util.random_color(min_rgb=20, max_rgb=255)
-        self.speed_factor = self.settings.laser_speed_factor
-        
-    def update(self): 
-        self.y -= self.speed_factor
-        self.rect.y = self.y
-    
     def draw(self):
-        pg.draw.rect(self.screen, self.color, self.rect) 
+        image = self.timer.image()
+        rect = image.get_rect()
+        rect.left, rect.top = self.rect.left, self.rect.top
+        self.screen.blit(image, rect)
+

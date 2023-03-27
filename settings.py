@@ -1,33 +1,35 @@
-from colors import DARK_GREY, LIGHT_GREY, LIGHT_RED
-
 class Settings():
+    """A class to store all settings for Alien Invasion."""
+
     def __init__(self):
+        """Initialize the game's settings."""
+        # Screen settings
         self.screen_width = 1200
         self.screen_height = 800
-        self.bg_color = LIGHT_RED
+        self.bg_color = (40, 40, 40)
 
-        
-        self.laser_width = 3
+# # TODO: test laser with a really wide laser
+        self.laser_width = 5
         self.laser_height = 30
-        self.laser_color = 60, 60, 60
-        self.lasers_allowed = 3000
-        self.fleet_drop_speed = 10
+        self.laser_color = 255, 0, 0
+        self.lasers_every = 80           # change to 1 to see faster lasers
 
-        self.speedup_scale = 1.1
-        self.score_scale = 1.5
-        self.init_dynamic_settings()
+        self.aliens_shoot_every = 120    # about every 2 seconds at 60 fps
+        # self.alien_points = 50
 
-    def init_dynamic_settings(self):
-        self.ship_speed = 10
-        self.alien_speed_factor = 10
-        self.laser_speed_factor = 10
-        self.alien_points = 50
+# # TODO: set a ship_limit of 3
+        self.ship_limit = 3         # total ships allowed in game before game over
+
+        self.fleet_drop_speed = 5
+        self.fleet_direction = 1     # change to a Vector(1, 0) move to the right, and ...
+        self.initialize_speed_settings()
+
+    def initialize_speed_settings(self):
+        self.alien_speed = .6
+        self.ship_speed = 3
+        self.laser_speed = 3
 
     def increase_speed(self):
-        """Increase speed settings."""
-        self.ship_speed *= self.speedup_scale
-        self.laser_speed_factor *= self.speedup_scale
-        self.alien_speed_factor *= self.speedup_scale
-
-        self.alien_points = int(self.alien_points *self.score_scale)
-            
+        scale = self.speedup_scale
+        self.ship_speed *= scale
+        self.laser_speed *= scale
